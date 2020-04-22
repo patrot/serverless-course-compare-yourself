@@ -23,21 +23,26 @@ export class CompareService {
     this.dataIsLoading.next(true);
     this.dataEdited.next(false);
     this.userData = data;
-      this.http.post('https://API_ID.execute-api.REGION.amazonaws.com/dev/', data, {
-        headers: new Headers({'Authorization': 'XX'})
-      })
-        .subscribe(
-          (result) => {
-            this.dataLoadFailed.next(false);
-            this.dataIsLoading.next(false);
-            this.dataEdited.next(true);
-          },
-          (error) => {
-            this.dataIsLoading.next(false);
-            this.dataLoadFailed.next(true);
-            this.dataEdited.next(false);
-          }
-        );
+    this.authService.getAuthenticatedUser().getSession((err, session) => {
+      if (err) {
+        return;
+      }
+      this.http.post('https://pu5qo3c0u4.execute-api.us-east-1.amazonaws.com/dev/compare-yourself', data, {
+        headers: new Headers({'Authorization': session.getIdToken().getJwtToken()})
+          })
+          .subscribe(
+            (result) => {
+              this.dataLoadFailed.next(false);
+              this.dataIsLoading.next(false);
+              this.dataEdited.next(true);
+            },
+            (error) => {
+              this.dataIsLoading.next(false);
+              this.dataLoadFailed.next(true);
+              this.dataEdited.next(false);
+            }
+          );
+      });
   }
   onRetrieveData(all = true) {
     this.dataLoaded.next(null);
